@@ -11,11 +11,8 @@ To start working with bootstrap simply clone bootstrap repository with our repos
 git clone git@github.com:SwingDev/bootstrap-bootstrap.git . -o upstream
 ```
 
-## Update
-If you are using old version of our bootstrap simply merge your branch with the changes from the upstream
-```bash
-git merge upstream master
-```
+## Self-update
+Script updates itself automatically on a daily basis.
 
 # Usage
 The repository consists of three main components:
