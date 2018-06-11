@@ -4,7 +4,9 @@ set -e
 COMMAND_STATUS='status'
 COMMAND_BRANCH='branch'
 COMMAND_ADD='add-module'
-COMMAND_RUN='run'
+COMMAND_DOWN='down'
+COMMAND_UP='up'
+COMMAND_LOGS='logs'
 
 function indent_string() {
     sed -e 's/^/     /'
@@ -79,18 +81,21 @@ function add_module() {
     fi
 }
 
-function cleanup {
-  docker-compose -f docker-compose.yml stop
+function docker_compose_down() {
+    docker-compose -f docker-compose.yml down $@
 }
 
-function run_docker_compose() {
-    echo "RUN";
-    cleanup
-    trap cleanup EXIT
-    docker-compose -f docker-compose.yml up -d --build
-    docker-compose -f docker-compose.yml logs --follow
+function docker_compose_up() {
+    docker-compose -f docker-compose.yml up -d --remove-orphans --build $@
 }
 
+function docker_compose_logs() {
+    echo "Attaching logs. Press Ctrl+C twice to exit."
+    while sleep .5; do
+        echo "Reattaching logs. Press Ctrl+C twice to exit."
+        docker-compose -f docker-compose.yml logs --tail 100 --follow $@
+    done
+}
 
 case "$1" in
     "$COMMAND_STATUS")
@@ -99,8 +104,12 @@ case "$1" in
         (iterate_over_modules branch);;
     "$COMMAND_ADD")
         (add_module $2 $3);;
-    "$COMMAND_RUN")
-        (run_docker_compose);;
+    "$COMMAND_DOWN")
+        (docker_compose_down "${@:2}");;
+    "$COMMAND_UP")
+        (docker_compose_up "${@:2}");;
+    "$COMMAND_LOGS")
+        (docker_compose_logs "${@:2}");;
     "")
         (iterate_over_modules fetch_or_update);;
 esac

@@ -7,12 +7,14 @@
 
 # Installation
 To start working with bootstrap simply clone bootstrap repository with our repository upstream renamed to upstream. It will help you get the updates from our repository while keeping your changes for your project.
+
 ```bash
 git clone git@github.com:SwingDev/bootstrap-bootstrap.git . -o upstream
 ```
 
 ## Update
 If you are using old version of our bootstrap simply merge your branch with the changes from the upstream
+
 ```bash
 git merge upstream master
 ```
@@ -29,17 +31,48 @@ To fetch all dependencies simply run:
 ./bootstrap.sh
 ```
 
-## Running project
-To run the project simply use run command:
+## Running / rebuilding project
+To run the project simply use up command:
+
 ```bash
-./bootstrap.sh run
+./bootstrap.sh up
 ```
+
+Optionally you can pass a list of services to be rebuilt:
+
+```bash
+./bootstrap.sh up api web
+```
+
+## Logs
+To see the logs use the `logs` command:
+
+```bash
+./bootstrap.sh logs
+```
+
+To see logs from only a couple of services, pass their names as arguments:
+
+```bash
+./bootstrap.sh logs api web
+```
+
+## Stopping the project
+To stop the project simply use down command:
+
+```bash
+./bootstrap.sh down
+```
+
+Stopping will delete all containers and all network leftovers, so make sure to mount everything you need persisted.
 
 ## Checking branches
 To check on which branch each of the modules is, simply use the following command:
+
 ```bash
 ./bootstrap.sh branch
 ```
+
 ```bash
 # Example of the output
 frontend:       master
@@ -49,9 +82,11 @@ pdf-generator:  master
 
 ## Checking statuses
 To check status of all the modules, use the following command:
+
 ```bash
 ./boostrap.sh status
 ```
+
 ```bash
 # Example of the output
 frontend:
@@ -75,9 +110,11 @@ pdf-generator:
 # Setup
 ## Adding new dependency
 To add new dependency, simply use:
+
 ```bash
 ./bootstrap.sh add-module <repository-url> <directory>
 ```
+
 This will add new line to `modules.txt` and fetch the repository.
 If fetched repository constains `.docker-compose.template.yml`, it will be appended to your `docker-compose.yml` file.
 In future versions we plan to extend this with templating mechanism, for now it is just pasting the content with the proper indentation (name of the container is set to the name of the directory you provide for the command).
