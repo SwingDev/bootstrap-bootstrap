@@ -115,6 +115,8 @@ This will add new line to `modules.txt` and fetch the repository.
 If fetched repository constains `.docker-compose.template.yml`, it will be appended to your `docker-compose.yml` file.
 In future versions we plan to extend this with templating mechanism, for now it is just pasting the content with the proper indentation (name of the container is set to the name of the directory you provide for the command).
 
+In the template, you can use `<PROJECT_DIR>` template string which will be replaced with a directory name where the project will be fetched. You can use it to setup docker volumes correctly for example.
+
 # Authors
 The tool is an Open Sourced version of the tool we are using internally in [SwingDev](https://swingdev.io).
 
