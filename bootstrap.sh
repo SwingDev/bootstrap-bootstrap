@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+SELF_UPDATE_GIT_REMOTE='git://github.com/swingdev/bootstrap-bootstrap.git'
+SELF_UPDATE_STAMP_FILE='./._last_self_updated'
+
 COMMAND_STATUS='status'
 COMMAND_BRANCH='branch'
 COMMAND_ADD='add-module'
@@ -10,6 +13,37 @@ COMMAND_LOGS='logs'
 
 function indent_string() {
     sed -e 's/^/     /'
+}
+
+function self_heal() {
+    git remote rm upstream 2>/dev/null || true
+}
+
+function self_update() {
+    git fetch ${SELF_UPDATE_GIT_REMOTE} master
+    git merge FETCH_HEAD
+}
+
+function self_update_if_its_time() {
+    stamp_file_content="1970-01-01T00:00:00Z"
+    if [ -f $SELF_UPDATE_STAMP_FILE ]; then
+        stamp_file_content=$(cat $SELF_UPDATE_STAMP_FILE)
+    fi
+
+    now=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" $(date -u +"%Y-%m-%dT%H:%M:%SZ") +%s 2>/dev/null)
+    stamp=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" ${stamp_file_content} +%s 2>/dev/null)
+
+    delta=$(($now-$stamp))
+    update_if_n_sec_passed=$((60*60*24*1))
+
+    if [ $delta -ge $update_if_n_sec_passed ]; then
+        echo "Performing self update..."
+        self_update
+        echo "Done."
+        echo ""
+
+        echo $(date -u +"%Y-%m-%dT%H:%M:%SZ") > $SELF_UPDATE_STAMP_FILE
+    fi
 }
 
 function iterate_over_modules() {
@@ -96,6 +130,9 @@ function docker_compose_logs() {
         docker-compose -f docker-compose.yml logs --tail 100 --follow $@
     done
 }
+
+self_heal
+self_update_if_its_time
 
 case "$1" in
     "$COMMAND_STATUS")
