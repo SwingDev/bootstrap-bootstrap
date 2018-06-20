@@ -122,7 +122,10 @@ function add_module() {
         echo "Updating $DOCKER_COMPOSE_FILE"
         TAB=$'\t'
         echo -e "${TAB}${folder}:" >> docker-compose.yml
-        sed -e "s/^/${TAB}${TAB}/" "./${folder}/.docker-compose.template.yml" >> $DOCKER_COMPOSE_FILE
+        sed \
+            -e "s/^/${TAB}${TAB}/" \
+            -e "s/\<PROJECT_DIR\>/\.\/$folder/" \
+            "./${folder}/.docker-compose.template.yml" >> $DOCKER_COMPOSE_FILE
     else
         echo "No template for docker compose module, you have to setup the module manually.";
     fi
