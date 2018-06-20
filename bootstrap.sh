@@ -10,6 +10,19 @@ COMMAND_ADD='add-module'
 COMMAND_DOWN='down'
 COMMAND_UP='up'
 COMMAND_LOGS='logs'
+DOCKER_COMPOSE_FILE='docker-compose.yml'
+
+# Resolving Arguments
+while getopts c: name
+do
+    case $name in
+    c)    DOCKER_COMPOSE_FILE="$OPTARG";;
+    ?)   printf "Usage: %s: [-c configuration-file] command\n" $0
+        exit 2;;
+    esac
+done
+shift $(($OPTIND - 1))
+# -- End - Resolving Arguments
 
 function indent_string() {
     sed -e 's/^/     /'
@@ -106,28 +119,28 @@ function add_module() {
     (fetch_or_update $url $folder);
     # Updating docker compose
     if [ -f "${folder}/.docker-compose.template.yml" ]; then
-        echo "Updating docker-compose.yml"
+        echo "Updating $DOCKER_COMPOSE_FILE"
         TAB=$'\t'
         echo -e "${TAB}${folder}:" >> docker-compose.yml
-        sed -e "s/^/${TAB}${TAB}/" "./${folder}/.docker-compose.template.yml" >> docker-compose.yml
+        sed -e "s/^/${TAB}${TAB}/" "./${folder}/.docker-compose.template.yml" >> $DOCKER_COMPOSE_FILE
     else
         echo "No template for docker compose module, you have to setup the module manually.";
     fi
 }
 
 function docker_compose_down() {
-    docker-compose -f docker-compose.yml down $@
+    docker-compose -f $DOCKER_COMPOSE_FILE down $@
 }
 
 function docker_compose_up() {
-    docker-compose -f docker-compose.yml up -d --remove-orphans --build $@
+    docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans --build $@
 }
 
 function docker_compose_logs() {
     echo "Attaching logs. Press Ctrl+C twice to exit."
     while sleep .5; do
         echo "Reattaching logs. Press Ctrl+C twice to exit."
-        docker-compose -f docker-compose.yml logs --tail 100 --follow $@
+        docker-compose -f $DOCKER_COMPOSE_FILE logs --tail 100 --follow $@
     done
 }
 

@@ -103,6 +103,13 @@ pdf-generator:
      Your branch is up-to-date with 'origin/master'.
      nothing to commit, working tree clean
 ```
+
+## Custom docker-compose.yml location
+It is possible to specify custom docker-compose.yml location. It might be useful if you have few configurations with different settings - for example configuration with frontend live-reload, backend live-reload or verbose output or different configuration for your CI with different ports binding. To do that, use `-c` parameter for any command:
+```
+./bootstrap.sh -c docker-compose.frontend.yml up
+```
+
 # Setup
 ## Adding new dependency
 To add new dependency, simply use:
