@@ -67,6 +67,16 @@ To see logs from only a couple of services, pass their names as arguments:
 ./bootstrap.sh logs api web
 ```
 
+## Running commands on containers
+
+You can run arbitrary commands within running containers via:
+
+```bash
+./bootstrap.sh exec api /bin/sh
+```
+
+The above example will start a shell on the api service.
+
 ## Stopping the project
 To stop the project simply use down command:
 
