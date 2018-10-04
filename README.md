@@ -40,6 +40,20 @@ Optionally you can pass a list of services to be rebuilt:
 ./bootstrap.sh up api web
 ```
 
+## Building only
+
+You can just build the services without starting them up:
+
+```bash
+./bootstrap build
+```
+
+As with other commands you can specify which services to build
+
+```bash
+./bootstrap build api
+```
+
 ## Logs
 To see the logs use the `logs` command:
 

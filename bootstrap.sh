@@ -9,6 +9,7 @@ COMMAND_BRANCH='branch'
 COMMAND_ADD='add-module'
 COMMAND_DOWN='down'
 COMMAND_UP='up'
+COMMAND_BUILD='build'
 COMMAND_LOGS='logs'
 DOCKER_COMPOSE_FILE='docker-compose.yml'
 
@@ -139,6 +140,10 @@ function docker_compose_up() {
     docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans --build $@
 }
 
+function docker_compose_build() {
+    docker-compose -f $DOCKER_COMPOSE_FILE build --force-rm $@
+}
+
 function docker_compose_logs() {
     echo "Attaching logs. Press Ctrl+C twice to exit."
     while sleep .5; do
@@ -161,6 +166,8 @@ case "$1" in
         (docker_compose_down "${@:2}");;
     "$COMMAND_UP")
         (docker_compose_up "${@:2}");;
+    "$COMMAND_BUILD")
+        (docker_compose_build "${@:2}");;
     "$COMMAND_LOGS")
         (docker_compose_logs "${@:2}");;
     "")
