@@ -40,6 +40,20 @@ Optionally you can pass a list of services to be rebuilt:
 ./bootstrap.sh up api web
 ```
 
+## Building only
+
+You can just build the services without starting them up:
+
+```bash
+./bootstrap build
+```
+
+As with other commands you can specify which services to build
+
+```bash
+./bootstrap build api
+```
+
 ## Logs
 To see the logs use the `logs` command:
 
@@ -52,6 +66,16 @@ To see logs from only a couple of services, pass their names as arguments:
 ```bash
 ./bootstrap.sh logs api web
 ```
+
+## Running commands on containers
+
+You can run arbitrary commands within running containers via:
+
+```bash
+./bootstrap.sh exec api /bin/sh
+```
+
+The above example will start a shell on the api service.
 
 ## Stopping the project
 To stop the project simply use down command:
