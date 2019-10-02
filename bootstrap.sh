@@ -90,10 +90,15 @@ function retry {
 }
 
 function setup() {
+    if [ ! -d "./setup" ]; then
+      return
+    fi
+
     current=$(setup_latest_git_modified_date)
 
     echo "Performing setup..."
 
+    shopt -s nullglob
     for f in ./setup/*.sh; do
         echo "Running '${f}'."
         retry bash "$f" -H
