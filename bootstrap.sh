@@ -4,6 +4,9 @@ set -e
 SELF_UPDATE_GIT_REMOTE='git://github.com/swingdev/bootstrap-bootstrap.git'
 SELF_UPDATE_STAMP_FILE='./._last_self_updated'
 
+SETUP_FILES_PATHSPEC='./setup/*.sh'
+SETUP_COMMIT_STAMP_FILE='./._last_performed_setup'
+
 COMMAND_STATUS='status'
 COMMAND_BRANCH='branch'
 COMMAND_ADD='add-module'
@@ -12,6 +15,7 @@ COMMAND_UP='up'
 COMMAND_BUILD='build'
 COMMAND_LOGS='logs'
 COMMAND_EXEC='exec'
+COMMAND_SETUP='setup'
 DOCKER_COMPOSE_FILE='docker-compose.yml'
 
 # Resolving Arguments
@@ -58,6 +62,33 @@ function self_update_if_its_time() {
         echo ""
 
         echo $(date -u +"%Y-%m-%dT%H:%M:%SZ") > $SELF_UPDATE_STAMP_FILE
+    fi
+}
+
+function setup() {
+    current=$(git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}')
+
+    echo "Performing setup..."
+
+    for f in ./setup/*.sh; do
+        echo "Running '${f}'."
+        bash "$f" -H || break  # execute successfully or break
+    done
+    echo "Done."
+    echo ""
+
+    echo ${current} > ${SETUP_COMMIT_STAMP_FILE}
+}
+
+function setup_if_needed() {
+    mkdir -p ./setup
+    touch ${SETUP_COMMIT_STAMP_FILE}
+
+    current=$(git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}')
+    last=$(<${SETUP_COMMIT_STAMP_FILE})
+
+    if [ ${current:-0} -gt ${last:-0} ]; then
+        setup
     fi
 }
 
@@ -139,6 +170,8 @@ function docker_compose_down() {
 
 function docker_compose_up() {
     docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans --build $@
+
+    setup_if_needed
 }
 
 function docker_compose_build() {
@@ -161,6 +194,8 @@ self_heal
 self_update_if_its_time
 
 case "$1" in
+    "$COMMAND_SETUP")
+        (setup);;
     "$COMMAND_STATUS")
         (iterate_over_modules status);;
     "$COMMAND_BRANCH")
