@@ -65,6 +65,28 @@ function self_update_if_its_time() {
     fi
 }
 
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=10
+  local delay=3
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command '$@' failed. Attempt $n/$max."
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
 function setup() {
     current=$(git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}')
 
@@ -72,7 +94,7 @@ function setup() {
 
     for f in ./setup/*.sh; do
         echo "Running '${f}'."
-        bash "$f" -H || break  # execute successfully or break
+        retry bash "$f" -H
     done
     echo "Done."
     echo ""
@@ -195,7 +217,7 @@ self_update_if_its_time
 
 case "$1" in
     "$COMMAND_SETUP")
-        (setup);;
+        (setup_if_needed);;
     "$COMMAND_STATUS")
         (iterate_over_modules status);;
     "$COMMAND_BRANCH")
