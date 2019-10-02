@@ -45,6 +45,8 @@ Some services will need to perform a certain set of actions before they are able
 
 To accomodate this, this script will run all `./setup/*.sh` scripts defined, every time they change ssince the last setup run (as per last git modification timestamp).
 
+**ATTENTION**: setup scripts **must** be idempotent (able to run multiple times without adverse effects), as they will run multiple times - on each change to the setup scripts.
+
 Setup step will run right after `up` command.
 
 Setup can be forced (regardless of the timestamps) by running:
@@ -53,9 +55,7 @@ Setup can be forced (regardless of the timestamps) by running:
 ./bootstrap.sh setup
 ```
 
-*NOTE*: setup scripts *must* be idempotent (able to run multiple times without adverse effects), as they will run multiple times - on each change to the setup scripts.
-
-*NOTE 2*: each setup script will be run up to 10 times, with a delay of 3 seconds (determined by it's exit code).
+**NOTE**: each setup script will be run up to 10 times, with a delay of 3 seconds (determined by it's exit code).
 
 ## Building only
 
