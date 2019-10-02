@@ -90,7 +90,7 @@ function retry {
 }
 
 function setup() {
-    current=$(git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}')
+    current=$(setup_latest_git_modified_date)
 
     echo "Performing setup..."
 
@@ -104,11 +104,14 @@ function setup() {
     echo ${current} > ${SETUP_COMMIT_STAMP_FILE}
 }
 
+function setup_latest_git_modified_date() {
+    git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}'
+}
+
 function setup_if_needed() {
-    mkdir -p ./setup
     touch ${SETUP_COMMIT_STAMP_FILE}
 
-    current=$(git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}')
+    current=$(setup_latest_git_modified_date)
     last=$(<${SETUP_COMMIT_STAMP_FILE})
 
     if [ ${current:-0} -gt ${last:-0} ]; then
