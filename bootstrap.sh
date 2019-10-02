@@ -6,6 +6,8 @@ SELF_UPDATE_STAMP_FILE='./._last_self_updated'
 
 SETUP_FILES_PATHSPEC='./setup/*.sh'
 SETUP_COMMIT_STAMP_FILE='./._last_performed_setup'
+SETUP_RETRY_TIMES=10
+SETUP_RETRY_DELAY=5
 
 COMMAND_STATUS='status'
 COMMAND_BRANCH='branch'
@@ -72,8 +74,8 @@ function fail {
 
 function retry {
   local n=1
-  local max=10
-  local delay=3
+  local max=$SETUP_RETRY_TIMES
+  local delay=$SETUP_RETRY_DELAY
   while true; do
     "$@" && break || {
       if [[ $n -lt $max ]]; then
