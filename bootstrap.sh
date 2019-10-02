@@ -217,7 +217,7 @@ self_update_if_its_time
 
 case "$1" in
     "$COMMAND_SETUP")
-        (setup_if_needed);;
+        (setup);;
     "$COMMAND_STATUS")
         (iterate_over_modules status);;
     "$COMMAND_BRANCH")
