@@ -43,7 +43,7 @@ Optionally you can pass a list of services to be rebuilt:
 ## Services pre-run setup
 Some services will need to perform a certain set of actions before they are able to start successfully. This might include eg. running migrations, setting up fixtures, etc.
 
-To accomodate this, this script will run all the setup scripts, every time they change since the last setup run (as per last git modification timestamp).
+To accommodate this, this script will run all the setup scripts, every time they change since the last setup run (as per last git modification timestamp).
 
 Adding the setup scripts is as simple as
 ```bash
