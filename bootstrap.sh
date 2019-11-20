@@ -119,6 +119,7 @@ function add_module() {
     echo "Adding module $url $folder";
     echo "$url $folder" >> modules.txt
     (fetch_or_update $url $folder);
+    if ! grep -q "^${folder}\$" .gitignore; then echo "${folder}" >> .gitignore ; fi
     # Updating docker compose
     if [ -f "${folder}/.docker-compose.template.yml" ]; then
         echo "Updating $DOCKER_COMPOSE_FILE"

@@ -142,7 +142,7 @@ To add new dependency, simply use:
 ./bootstrap.sh add-module <repository-url> <directory>
 ```
 
-This will add new line to `modules.txt` and fetch the repository.
+This will add new line to `modules.txt`, fetch the repository and add its directory to bootstrap's `.gitignore`.
 If fetched repository constains `.docker-compose.template.yml`, it will be appended to your `docker-compose.yml` file.
 In future versions we plan to extend this with templating mechanism, for now it is just pasting the content with the proper indentation (name of the container is set to the name of the directory you provide for the command).
 
