@@ -4,6 +4,11 @@ set -e
 SELF_UPDATE_GIT_REMOTE='git://github.com/swingdev/bootstrap-bootstrap.git'
 SELF_UPDATE_STAMP_FILE='./._last_self_updated'
 
+SETUP_FILES_PATHSPEC='./setup/*.sh'
+SETUP_COMMIT_STAMP_FILE='./._last_performed_setup'
+SETUP_RETRY_TIMES=10
+SETUP_RETRY_DELAY=5
+
 COMMAND_STATUS='status'
 COMMAND_BRANCH='branch'
 COMMAND_ADD='add-module'
@@ -12,6 +17,7 @@ COMMAND_UP='up'
 COMMAND_BUILD='build'
 COMMAND_LOGS='logs'
 COMMAND_EXEC='exec'
+COMMAND_SETUP='setup'
 DOCKER_COMPOSE_FILE='docker-compose.yml'
 
 # Resolving Arguments
@@ -58,6 +64,63 @@ function self_update_if_its_time() {
         echo ""
 
         echo $(date -u +"%Y-%m-%dT%H:%M:%SZ") > $SELF_UPDATE_STAMP_FILE
+    fi
+}
+
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=$SETUP_RETRY_TIMES
+  local delay=$SETUP_RETRY_DELAY
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command '$@' failed. Attempt $n/$max."
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
+function setup() {
+    if [ ! -d "./setup" ]; then
+      return
+    fi
+
+    current=$(setup_latest_git_modified_date)
+
+    echo "Performing setup..."
+
+    shopt -s nullglob
+    for f in ./setup/*.sh; do
+        echo "Running '${f}'."
+        retry bash "$f" -H
+    done
+    echo "Done."
+    echo ""
+
+    echo ${current} > ${SETUP_COMMIT_STAMP_FILE}
+}
+
+function setup_latest_git_modified_date() {
+    git status -s ${SETUP_FILES_PATHSPEC} | while read mode file; do echo $(stat -f "%m" $file); done|sort -r | awk 'NR==1 {print; exit}'
+}
+
+function setup_if_needed() {
+    touch ${SETUP_COMMIT_STAMP_FILE}
+
+    current=$(setup_latest_git_modified_date)
+    last=$(<${SETUP_COMMIT_STAMP_FILE})
+
+    if [ ${current:-0} -gt ${last:-0} ]; then
+        setup
     fi
 }
 
@@ -140,6 +203,8 @@ function docker_compose_down() {
 
 function docker_compose_up() {
     docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans --build $@
+
+    setup_if_needed
 }
 
 function docker_compose_build() {
@@ -162,6 +227,8 @@ self_heal
 self_update_if_its_time
 
 case "$1" in
+    "$COMMAND_SETUP")
+        (setup);;
     "$COMMAND_STATUS")
         (iterate_over_modules status);;
     "$COMMAND_BRANCH")

@@ -40,6 +40,31 @@ Optionally you can pass a list of services to be rebuilt:
 ./bootstrap.sh up api web
 ```
 
+## Services pre-run setup
+Some services will need to perform a certain set of actions before they are able to start successfully. This might include eg. running migrations, setting up fixtures, etc.
+
+To accommodate this, this script will run all the setup scripts, every time they change since the last setup run (as per last git modification timestamp).
+
+Adding the setup scripts is as simple as
+```bash
+mkdir -p ./setup
+touch ./setup/initialize-database.sh
+```
+
+All the `.sh` files in `./setup` directory are considered to be setup scripts. They are executed in alphabetical order as per bash.
+
+**ATTENTION**: setup scripts **must** be idempotent (able to run multiple times without adverse effects), as they will run multiple times - on each change to the setup scripts.
+
+Setup step will run right after `up` command.
+
+Setup can be forced (regardless of the timestamps) by running:
+
+```bash
+./bootstrap.sh setup
+```
+
+**NOTE**: each setup script will be run up to 10 times, with a delay of 3 seconds (determined by it's exit code).
+
 ## Building only
 
 You can just build the services without starting them up:
